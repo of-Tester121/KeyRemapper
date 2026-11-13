@@ -184,7 +184,7 @@ footer{padding:40px 0;color:var(--mute);font-size:.92rem;text-align:center}
 <footer><div class="wrap">KeyRemapper · Made by Edui · <a data-rel href="#">All releases</a></div></footer>
 
 <script>
-const CFG = { user: "YOUR-GITHUB-USERNAME", repo: "KeyRemapper" };
+const CFG = { user: "of-Tester121", repo: "KeyRemapper" };
 const base = `https://github.com/${CFG.user}/${CFG.repo}`;
 const set = (sel, url) => document.querySelectorAll(sel).forEach(a => a.href = url);
 set("[data-dl]", `${base}/releases/latest/download/KeyRemapper.exe`);
@@ -192,7 +192,7 @@ set("[data-repo]", base);
 set("[data-src]", `${base}/archive/refs/heads/main.zip`);
 set("[data-rel]", `${base}/releases`);
 
-if (CFG.user !== "YOUR-GITHUB-USERNAME") {
+if (CFG.user) {
   fetch(`https://api.github.com/repos/${CFG.user}/${CFG.repo}/releases`)
     .then(r => r.ok ? r.json() : Promise.reject())
     .then(rels => {
