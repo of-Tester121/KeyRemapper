@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KeyRemapper – turn any mouse button into any key</title>
+<meta name="description" content="Free Windows app that remaps mouse side buttons and keyboard keys. Make as many remaps as you want. One small .exe, no install.">
+<link rel="icon" href="icon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17133a;--bg2:#221b57;--ink:#f4f2ff;--mute:#b4aee0;--amber:#ffc43d;--violet:#8b7cff;--line:rgba(255,255,255,.12);--glass:rgba(255,255,255,.06)}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',system-ui,sans-serif;color:var(--ink);background:var(--bg);line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-20%;z-index:-1;background:radial-gradient(40% 35% at 20% 15%,#5b46f0 0,transparent 70%),radial-gradient(35% 30% at 85% 30%,#a855f7 0,transparent 70%),radial-gradient(40% 40% at 50% 100%,#3b2fb0 0,transparent 70%);opacity:.55;animation:drift 22s ease-in-out infinite alternate}
+@keyframes drift{to{transform:translate(3%,4%) scale(1.08)}}
+h1,h2,h3{font-family:'Bricolage Grotesque',sans-serif;line-height:1.08;letter-spacing:-.02em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--amber);outline-offset:3px;border-radius:8px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px);background:rgba(23,19,58,.65);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;font:800 1.15rem 'Bricolage Grotesque';text-decoration:none;margin-right:auto}
+.brand img{width:32px;height:32px}
+nav a.l{text-decoration:none;color:var(--mute);font-weight:500}
+nav a.l:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:10px;padding:14px 26px;border-radius:14px;font-weight:700;text-decoration:none;border:1px solid var(--line);transition:transform .15s,box-shadow .15s,background .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.pri{background:var(--amber);color:#2a1d00;border-color:transparent;box-shadow:0 10px 30px -8px rgba(255,196,61,.6)}
+.btn.pri:hover{box-shadow:0 14px 36px -6px rgba(255,196,61,.8)}
+.btn.sec{background:var(--glass)}
+.btn.sm{padding:9px 18px;border-radius:10px}
+.hero{padding:76px 0 56px}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+.hero h1{font-size:clamp(2.5rem,5.6vw,4.4rem);font-weight:800}
+.hero p.lead{font-size:1.2rem;color:var(--mute);margin:22px 0 32px;max-width:34em}
+.cta{display:flex;flex-wrap:wrap;gap:14px}
+.fine{margin-top:16px;font-size:.9rem;color:var(--mute)}
+.demo{background:var(--glass);border:1px solid var(--line);border-radius:28px;padding:26px;backdrop-filter:blur(10px);box-shadow:0 30px 70px -30px rgba(0,0,0,.6)}
+.demo h3{font-size:1.15rem;margin-bottom:4px}
+.demo small{color:var(--mute)}
+.stage{display:flex;align-items:center;justify-content:space-between;margin:22px 0 14px}
+.mouse{position:relative;width:128px;height:208px;background:#fff;border-radius:64px 64px 70px 70px;flex:none}
+.mouse::before{content:"";position:absolute;left:50%;top:0;width:3px;height:70px;background:#b9b1f5;transform:translateX(-50%)}
+.mouse::after{content:"";position:absolute;left:12px;right:12px;top:70px;height:3px;background:#b9b1f5}
+.mouse i{position:absolute;left:50%;top:26px;width:16px;height:30px;border-radius:8px;background:#7c6df0;transform:translateX(-50%)}
+.sb{position:absolute;left:-16px;width:26px;height:34px;border:0;border-radius:10px;background:var(--amber);cursor:pointer;box-shadow:0 4px 0 #b88700;transition:transform .08s,box-shadow .08s}
+.sb.a{top:92px}.sb.b{top:136px}
+.sb:active,.sb.on{transform:translateY(3px);box-shadow:0 1px 0 #b88700}
+.arrow{font-size:2.2rem;color:var(--amber)}
+.keys{display:flex;gap:12px}
+.key{width:76px;height:76px;border-radius:16px;background:#fff;color:#4b3fd8;display:grid;place-items:center;font:800 2rem 'Bricolage Grotesque';box-shadow:0 7px 0 #2c2287;transition:transform .08s,box-shadow .08s,background .08s}
+.key.on{transform:translateY(5px);box-shadow:0 2px 0 #2c2287;background:var(--amber)}
+.map{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;font-size:.92rem;margin-top:8px}
+select{background:rgba(0,0,0,.25);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+.typed{margin-top:14px;min-height:46px;padding:10px 14px;border-radius:12px;background:rgba(0,0,0,.3);font:500 1.1rem ui-monospace,Consolas,monospace;word-break:break-all}
+.typed:empty::before{content:"click the yellow side buttons…";color:var(--mute)}
+.strip{border-block:1px solid var(--line);background:rgba(0,0,0,.18)}
+.strip .wrap{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;padding-block:22px}
+.strip b{display:block;font:800 1.7rem 'Bricolage Grotesque'}
+.strip span{color:var(--mute);font-size:.92rem}
+section{padding:84px 0}
+.sh{max-width:36em;margin-bottom:40px}
+.sh h2{font-size:clamp(2rem,4vw,3rem);font-weight:800}
+.sh p{color:var(--mute);margin-top:12px;font-size:1.08rem}
+.bento{display:grid;grid-template-columns:repeat(6,1fr);gap:16px}
+.cell{background:var(--glass);border:1px solid var(--line);border-radius:22px;padding:26px}
+.cell h3{font-size:1.25rem;margin-bottom:8px}
+.cell p{color:var(--mute)}
+.c2{grid-column:span 2}.c3{grid-column:span 3}.c4{grid-column:span 4}
+.big{background:linear-gradient(135deg,rgba(139,124,255,.35),rgba(255,196,61,.14))}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.chips span{padding:6px 12px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid var(--line);font-size:.88rem}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:s}
+.step{position:relative;padding:28px 26px 26px;border-radius:22px;background:var(--glass);border:1px solid var(--line)}
+.step::before{counter-increment:s;content:counter(s);position:absolute;top:-20px;left:24px;width:40px;height:40px;border-radius:50%;background:var(--amber);color:#2a1d00;display:grid;place-items:center;font:800 1.15rem 'Bricolage Grotesque'}
+.step h3{margin:6px 0 8px;font-size:1.25rem}
+.step p{color:var(--mute)}
+.faq{max-width:760px}
+details{border-bottom:1px solid var(--line);padding:18px 4px}
+summary{cursor:pointer;font:700 1.12rem 'Bricolage Grotesque';list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--amber);font-size:1.4rem;line-height:1;transition:transform .2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{color:var(--mute);margin-top:10px}
+.final{text-align:center;padding:90px 24px;border-radius:32px;background:linear-gradient(135deg,rgba(139,124,255,.4),rgba(255,196,61,.18));border:1px solid var(--line)}
+.final img{width:96px;height:96px;margin-bottom:18px}
+.final h2{font-size:clamp(2rem,4.4vw,3.2rem);font-weight:800;max-width:15em;margin:0 auto 12px}
+.final p{color:var(--mute);margin-bottom:28px}
+.final .cta{justify-content:center}
+footer{padding:40px 0;color:var(--mute);font-size:.92rem;text-align:center}
+.rv{opacity:0;transform:translateY(16px);transition:opacity .6s,transform .6s}
+.rv.in{opacity:1;transform:none}
+@media(max-width:860px){.hero .wrap{grid-template-columns:1fr}.strip .wrap{grid-template-columns:repeat(2,1fr)}.bento{grid-template-columns:1fr}.c2,.c3,.c4{grid-column:auto}.steps{grid-template-columns:1fr;gap:34px}nav a.l{display:none}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<nav><div class="wrap">
+  <a class="brand" href="#top"><img src="icon.png" alt="">KeyRemapper</a>
+  <a class="l" href="#features">Features</a><a class="l" href="#how">How it works</a><a class="l" href="#faq">FAQ</a>
+  <a class="btn pri sm" data-dl href="#">Download</a>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <div>
+    <h1>Make your mouse side buttons press any key you want.</h1>
+    <p class="lead">KeyRemapper swaps one button for another, system-wide. Put B on a side button, V on the other, and add as many remaps as you like.</p>
+    <div class="cta">
+      <a class="btn pri" data-dl href="#">Download for Windows</a>
+      <a class="btn sec" data-repo href="#">View on GitHub</a>
+    </div>
+    <p class="fine">Free · one small .exe · no installer · Windows 10 and 11</p>
+  </div>
+  <div class="demo" id="demo">
+    <h3>Try it right here</h3>
+    <small>Click a yellow side button, or use your real mouse’s side buttons.</small>
+    <div class="stage">
+      <div class="mouse"><i></i><button class="sb a" aria-label="Side button 1"></button><button class="sb b" aria-label="Side button 2"></button></div>
+      <div class="arrow" aria-hidden="true">➜</div>
+      <div class="keys"><div class="key" id="k1">B</div><div class="key" id="k2">V</div></div>
+    </div>
+    <div class="map">
+      <label for="s1">Side button 1 →</label><select id="s1"></select>
+      <label for="s2">Side button 2 →</label><select id="s2"></select>
+    </div>
+    <div class="typed" id="typed" aria-live="polite"></div>
+  </div>
+</div></header>
+
+<div class="strip"><div class="wrap">
+  <div><b id="st-ver">v1.0</b><span>Latest version</span></div>
+  <div><b id="st-dl">—</b><span>Downloads</span></div>
+  <div><b>Unlimited</b><span>Remaps at once</span></div>
+  <div><b>0</b><span>Dependencies to install</span></div>
+</div></div>
+
+<section id="features"><div class="wrap">
+  <div class="sh rv"><h2>Small app, big list of things it does</h2><p>Everything runs in one window. Pick, add, done.</p></div>
+  <div class="bento rv">
+    <div class="cell c4 big"><h3>Pick any button by pressing it</h3><p>No menus of key names. Click Pick, press the button you mean, and KeyRemapper records it exactly, including left and right Shift, numpad keys, and both mouse side buttons.</p>
+      <div class="chips"><span>Keyboard keys</span><span>Side button 1 (Back)</span><span>Side button 2 (Forward)</span><span>Middle click</span></div></div>
+    <div class="cell c2"><h3>Many remaps at once</h3><p>Add as many as you want. Each one shows in a list you can remove from any time.</p></div>
+    <div class="cell c2"><h3>Mouse to mouse, too</h3><p>Send a side button to left or right click if you want a spare click button.</p></div>
+    <div class="cell c2"><h3>One-click on/off</h3><p>Flip “Remapping ON” to pause everything without closing the app.</p></div>
+    <div class="cell c2"><h3>Remembers everything</h3><p>Your remaps save automatically and load next time you open it.</p></div>
+    <div class="cell c3"><h3>Works in games</h3><p>Keys are sent as real hardware scan codes, which is what most games listen for. If a game runs as admin, run KeyRemapper as admin too.</p></div>
+    <div class="cell c3"><h3>The original button stays quiet</h3><p>While a remap is active, the old button is blocked, so your side button won’t also trigger Back in the browser.</p></div>
+    <div class="cell c2"><h3>No install</h3><p>Download one file and double-click it.</p></div>
+    <div class="cell c2"><h3>Light on your PC</h3><p>It only wakes up when you press a remapped button.</p></div>
+    <div class="cell c2"><h3>Free and open source</h3><p>Read the code, change it, share it.</p></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="sh rv"><h2>Set up your first remap in under a minute</h2></div>
+  <div class="steps rv">
+    <div class="step"><h3>Pick the button to change</h3><p>Click Pick next to “When I press”, then press the side button (or any key) you want to reassign.</p></div>
+    <div class="step"><h3>Pick what it should do</h3><p>Click Pick next to “Make it press” and hit the key you want instead, like B.</p></div>
+    <div class="step"><h3>Add it</h3><p>Click Add remap. It works immediately, system-wide. Repeat for more.</p></div>
+  </div>
+</div></section>
+
+<section id="faq"><div class="wrap">
+  <div class="sh rv"><h2>Questions people ask</h2></div>
+  <div class="faq rv">
+    <details><summary>Is it safe? My antivirus complained.</summary><p>Remappers have to watch the keyboard and mouse to work, and some antivirus tools flag any app that does that, especially ones built with PyInstaller. The full source is in the repo so you can check it, or build the .exe yourself with the included build.bat.</p></details>
+    <details><summary>Will it work in my game?</summary><p>In most games, yes. If the game runs as administrator, run KeyRemapper as administrator too. Games with strict anti-cheat can flag any tool that injects input, so check the game’s rules first.</p></details>
+    <details><summary>Can I remap a keyboard key to a mouse button?</summary><p>Yes. Choose left or right click in the “or mouse click” box under “Make it press”.</p></details>
+    <details><summary>Does it work on Mac or Linux?</summary><p>Not yet. KeyRemapper uses Windows-only hooks, so it’s Windows 10 and 11 for now.</p></details>
+    <details><summary>How do I undo a remap?</summary><p>Select it in the list and click Remove selected, or untick “Remapping ON” to pause them all.</p></details>
+  </div>
+</div></section>
+
+<section><div class="wrap"><div class="final rv">
+  <img src="icon.png" alt="KeyRemapper icon">
+  <h2>Your side buttons can do more than Back and Forward.</h2>
+  <p>Download KeyRemapper and set up your first remap in under a minute.</p>
+  <div class="cta"><a class="btn pri" data-dl href="#">Download KeyRemapper.exe</a><a class="btn sec" data-src href="#">Get the source</a></div>
+</div></div></section>
+
+<footer><div class="wrap">KeyRemapper · Made by Edui · <a data-rel href="#">All releases</a></div></footer>
+
+<script>
+const CFG = { user: "YOUR-GITHUB-USERNAME", repo: "KeyRemapper" };
+const base = `https://github.com/${CFG.user}/${CFG.repo}`;
+const set = (sel, url) => document.querySelectorAll(sel).forEach(a => a.href = url);
+set("[data-dl]", `${base}/releases/latest/download/KeyRemapper.exe`);
+set("[data-repo]", base);
+set("[data-src]", `${base}/archive/refs/heads/main.zip`);
+set("[data-rel]", `${base}/releases`);
+
+if (CFG.user !== "YOUR-GITHUB-USERNAME") {
+  fetch(`https://api.github.com/repos/${CFG.user}/${CFG.repo}/releases`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(rels => {
+      if (!rels.length) return;
+      document.getElementById("st-ver").textContent = rels[0].tag_name;
+      const n = rels.flatMap(r => r.assets).reduce((s, a) => s + a.download_count, 0);
+      document.getElementById("st-dl").textContent = n.toLocaleString();
+    }).catch(() => {});
+}
+
+/* interactive demo */
+const letters = ["B","V","F","E","Q","R","G","Z","Space"];
+const s1 = document.getElementById("s1"), s2 = document.getElementById("s2");
+letters.forEach(l => { s1.add(new Option(l, l)); s2.add(new Option(l, l)); });
+s1.value = "B"; s2.value = "V";
+const k1 = document.getElementById("k1"), k2 = document.getElementById("k2"), typed = document.getElementById("typed");
+const lab = v => v === "Space" ? "␣" : v;
+s1.onchange = () => k1.textContent = lab(s1.value);
+s2.onchange = () => k2.textContent = lab(s2.value);
+k1.textContent = lab(s1.value); k2.textContent = lab(s2.value);
+function press(n) {
+  const sel = n === 1 ? s1 : s2, key = n === 1 ? k1 : k2, btn = document.querySelector(n === 1 ? ".sb.a" : ".sb.b");
+  typed.textContent += sel.value === "Space" ? " " : sel.value.toLowerCase();
+  [key, btn].forEach(e => { e.classList.add("on"); setTimeout(() => e.classList.remove("on"), 140); });
+}
+document.querySelector(".sb.a").onclick = () => press(1);
+document.querySelector(".sb.b").onclick = () => press(2);
+const demo = document.getElementById("demo");
+demo.addEventListener("mousedown", e => { if (e.button === 3 || e.button === 4) { e.preventDefault(); press(e.button === 3 ? 1 : 2); } });
+["mouseup", "auxclick"].forEach(t => demo.addEventListener(t, e => { if (e.button === 3 || e.button === 4) e.preventDefault(); }));
+
+/* scroll reveal */
+const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { threshold: .12 });
+document.querySelectorAll(".rv").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
